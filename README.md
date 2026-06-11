@@ -59,7 +59,7 @@ IMU_Sitting_Postures_Dataset/
 │   └── ... (18 trial folders total, ordered chronologically)
 ├── sub_02/
 │   └── ... (18 trial folders)
-└── ... (sub_03 through sub_46, excluding sub_29)
+└── ... (sub_03 through sub_46)
 ```
 
 > **Note:** Trial folders are named by chronological order of recording (`trial1` = first trial performed), **not** by posture class. To identify which posture class was performed in each trial, refer to the `participants.tsv` file, which maps each participant's chronological trial order to their posture sequence.
