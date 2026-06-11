@@ -4,7 +4,7 @@
 
 ## Overview
 
-This repository contains the **IMU Sitting Postures Dataset**, a publicly available dataset of inertial measurement unit (IMU) recordings collected from 45 healthy Egyptian university students. Participants performed six predefined static sitting posture conditions during a controlled, gamified experimental session.
+This repository contains the **IMU Sitting Postures Dataset**, a publicly available dataset of inertial measurement unit (IMU) recordings collected from 46 healthy Egyptian university students. Participants performed six predefined static sitting posture conditions during a controlled, gamified experimental session.
 
 Data were recorded using four **WITMotion WT901BLECL** IMU sensors placed at anatomically relevant spinal landmarks (C7, T4, T12, and L5), sampled at **50 Hz**. The dataset is intended to support machine learning research in wearable-based posture classification, ergonomics, and real-time postural monitoring systems.
 
