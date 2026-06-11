@@ -99,7 +99,7 @@ Each `data_0.csv` file contains time-synchronized IMU readings from all four sen
 
 | Column | Type | Description |
 |---|---|---|
-| Person | string | Anonymized participant ID (sub_01 to sub_46; sub_29 excluded) |
+| Person | string | Anonymized participant ID (sub_01 to sub_46) |
 | Sequence | string | 18-character code mapping chronological trial order to posture classes |
 | Labeled | string | Whether data has been verified and labeled |
 | Consent Form | string | Consent status |
@@ -162,7 +162,7 @@ If you use this dataset in your research, please cite the following:
 Ali, A., Elsayed, N., Emad, M., Mohamed, S., Shehata, B., & Rehan, A. Y. (2026).
 IMU Sitting Postures Dataset. GitHub / Zenodo.
 https://github.com/nariman-ahmed/IMU-Sitting-Postures-Dataset
-DOI: [TO BE ADDED]
+DOI: [10.5281/zenodo.20643340](https://doi.org/10.5281/zenodo.20643340)
 ```
 
 ---
