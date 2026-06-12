@@ -1,0 +1,47 @@
+{
+  "Person": {
+    "Description": "Participant name, anonymized as sub_01 to sub_45 matching the folder structure",
+    "LongName": "Participant ID"
+  },
+  "Sequence": {
+    "Description": "18-digit code mapping chronological trials to posture classes"
+  },
+  "Labeled": {
+    "Description": "Whether the data has been verified/corrected",
+    "LongName": "Labeled or not"
+  },
+  "Consent_Form": {
+    "Description": "Consent status of the participant"
+  },
+  "Survey": {
+    "Description": "Survey completion status"
+  },
+  "biological_sex": {
+    "Description": "Biological sex of the participant, collected per Methods section",
+    "LongName": "Biological Sex",
+    "Levels": {
+      "M": "Male",
+      "F": "Female"
+    }
+  },
+  "weight": {
+    "Description": "Weight of the participant",
+    "Units": "kg"
+  },
+  "height": {
+    "Description": "Height of the participant",
+    "Units": "cm"
+  },
+  "age": {
+    "Description": "Age of the participant at time of data collection",
+    "Units": "years"
+  },
+  "handedness": {
+    "Description": "Dominant hand of the participant",
+    "LongName": "Right-handed or Left-handed",
+    "Levels": {
+      "right": "Right-handed",
+      "left": "Left-handed"
+    }
+  }
+}
