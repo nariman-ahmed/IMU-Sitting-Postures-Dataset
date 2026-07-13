@@ -190,7 +190,7 @@ If you use this dataset in your research, please cite the following:
 Ali, A., Elsayed, N., Emad, M., Mohamed, S., Shehata, B., & Rehan, A. Y. (2026).
 IMU Sitting Postures Dataset. GitHub / Zenodo.
 https://github.com/nariman-ahmed/IMU-Sitting-Postures-Dataset
-DOI: https://doi.org/10.5281/zenodo.20643340
+DOI: https://doi.org/10.5281/zenodo.20643339
 ```
 
 ---
