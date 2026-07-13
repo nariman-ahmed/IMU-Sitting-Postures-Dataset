@@ -4,7 +4,7 @@
 
 ## Overview
 
-This repository contains the **IMU Sitting Postures Dataset**, a publicly available dataset of inertial measurement unit (IMU) recordings collected from 46 healthy Egyptian university students. Participants performed six predefined static sitting posture conditions during a controlled, gamified experimental session.
+This repository contains the **IMU Sitting Postures Dataset**, a publicly available dataset of inertial measurement unit (IMU) recordings collected from 46 healthy Egyptian university students, of whom 45 participants are included in the final released dataset following quality assurance. Participants performed six predefined static sitting posture conditions during a controlled, gamified experimental session.
 
 Data were recorded using four **WITMotion WT901BLECL** IMU sensors placed at anatomically relevant spinal landmarks (C7, T4, T12, and L5), sampled at **50 Hz**. The dataset is intended to support machine learning research in wearable-based posture classification, ergonomics, and real-time postural monitoring systems.
 
@@ -77,20 +77,20 @@ Each `data_0.csv` file contains time-synchronized IMU readings from all four sen
 | Time | string | HH:MM:SS.ms | Local timestamp of recording |
 | Device name | string | — | MAC address identifying each sensor |
 | Chip Time | datetime | YYYY-MM-DD HH:MM:SS.ms | Internal sensor timestamp |
-| Acceleration X(g) | float | g | Mediolateral acceleration |
-| Acceleration Y(g) | float | g | Anteroposterior acceleration |
-| Acceleration Z(g) | float | g | Vertical acceleration |
-| Angular velocity X(°/s) | float | °/s | Roll |
-| Angular velocity Y(°/s) | float | °/s | Pitch |
-| Angular velocity Z(°/s) | float | °/s | Yaw |
-| Angle X(°) | float | degrees | Euler angle around X-axis |
-| Angle Y(°) | float | degrees | Euler angle around Y-axis |
-| Angle Z(°) | float | degrees | Euler angle around Z-axis |
-| Magnetic field X(µT) | float | µT | Magnetic field along X-axis |
-| Magnetic field Y(µT) | float | µT | Magnetic field along Y-axis |
-| Magnetic field Z(µT) | float | µT | Magnetic field along Z-axis |
+| Acceleration X(g) | float | g | Acceleration along the superior–inferior axis |
+| Acceleration Y(g) | float | g | Acceleration along the mediolateral axis |
+| Acceleration Z(g) | float | g | Acceleration along the anteroposterior axis (normal to the sensor surface) |
+| Angular velocity X(°/s) | float | °/s | Angular velocity about the superior–inferior axis |
+| Angular velocity Y(°/s) | float | °/s | Angular velocity about the mediolateral axis |
+| Angular velocity Z(°/s) | float | °/s | Angular velocity about the anteroposterior axis |
+| Angle X(°) | float | degrees | Roll (rotation about the superior–inferior axis) |
+| Angle Y(°) | float | degrees | Pitch (rotation about the mediolateral axis) |
+| Angle Z(°) | float | degrees | Yaw (rotation about the anteroposterior axis) |
+| Magnetic field X(µT) | float | µT | Magnetic field along the superior–inferior axis |
+| Magnetic field Y(µT) | float | µT | Magnetic field along the mediolateral axis |
+| Magnetic field Z(µT) | float | µT | Magnetic field along the anteroposterior axis |
 | Temperature (°C) | float | °C | Sensor temperature |
-| Quaternions 0 | float | — | Scalar (w) component |
+| Quaternions 0 | float | — | Quaternion scalar (w) component |
 | Quaternions 1 | float | — | Quaternion x component |
 | Quaternions 2 | float | — | Quaternion y component |
 | Quaternions 3 | float | — | Quaternion z component |
@@ -108,6 +108,32 @@ Each `data_0.csv` file contains time-synchronized IMU readings from all four sen
 | Height | float | Height in centimeters (self-reported) |
 | Age | integer | Age in years |
 | Handedness | string | Right-handed or left-handed |
+
+---
+
+## Sensor Coordinate System and Orientation
+
+The WT901BLECL IMUs record measurements in their own local coordinate system. During data collection, all four sensors (C7, T4, T12, and L5) were mounted in a fixed and standardized orientation within the custom wearable brace to establish a consistent relationship between the sensor-local axes and the participant's anatomical reference frame.
+
+Unlike studies that perform post-processing coordinate-frame alignment, **no additional mathematical rotation matrix or coordinate transformation was applied during preprocessing**. Instead, anatomical consistency was achieved through standardized sensor placement during dataset acquisition.
+
+The adopted sensor orientation is summarized below.
+
+| Recorded Signal | Axis | Anatomical Direction | Positive Direction |
+|-----------------|------|----------------------|--------------------|
+| **Acceleration** | X | Superior–Inferior | Superior (toward the head) |
+| | Y | Mediolateral | Left |
+| | Z | Anteroposterior (normal to the sensor surface) | Posterior (away from the participant) |
+| **Angular Velocity** | X | Rotation about the Superior–Inferior axis | Positive according to the WT901BLECL right-hand rule |
+| | Y | Rotation about the Mediolateral axis | Positive according to the WT901BLECL right-hand rule |
+| | Z | Rotation about the Anteroposterior axis | Positive according to the WT901BLECL right-hand rule |
+| **Euler Angles** | X (Roll) | Rotation about the Superior–Inferior axis | Positive according to the WT901BLECL convention |
+| | Y (Pitch) | Rotation about the Mediolateral axis | Positive according to the WT901BLECL convention |
+| | Z (Yaw) | Rotation about the Anteroposterior axis | Positive according to the WT901BLECL convention |
+
+All four sensors were mounted using this identical orientation, allowing measurements from corresponding axes to remain directly comparable across participants. The sensor orientation illustrated in **Figure 3** of the accompanying manuscript was maintained consistently throughout dataset acquisition.
+
+The coordinate definitions described above apply consistently to the acceleration, angular velocity, Euler angle, magnetometer, and quaternion measurements reported by each sensor.
 
 ---
 
@@ -140,7 +166,9 @@ The dataset was validated using a Convolutional Neural Network (CNN) trained wit
 | Right Bending | 0.88 | 0.89 | 0.89 |
 | Left Bending | 0.95 | 0.88 | 0.92 |
 
-Full model implementation is available at: [https://github.com/Ayat-Tarek/GP-DL-MODEL](https://github.com/Ayat-Tarek/GP-DL-MODEL)
+Full model implementation is available in the companion repository:
+
+https://github.com/Ayat-Tarek/GP-DL-MODEL
 
 ---
 
@@ -150,7 +178,7 @@ Full model implementation is available at: [https://github.com/Ayat-Tarek/GP-DL-
 - The dataset is limited to **healthy young adults aged 19–24** and does not include individuals with spinal deformities or musculoskeletal disorders.
 - The sample size of **46 recruited participants (45 included)** may limit the robustness of models trained solely on this data.
 - Recording sessions were of **limited duration** (30 seconds per trial) and do not capture long-term fatigue or posture drift over extended periods.
-- One participant was excluded during quality assurance due to anomalous signal characteristics (LOSO accuracy of 17.77%, more than 4 standard deviations below the group median of 83.7%), likely attributable to a sensor placement error or hardware issue.
+- One participant was excluded during quality assurance after being identified as a statistical outlier during participant-level screening. Independent review of the corresponding recordings revealed improper sensor placement caused by thick clothing, resulting in a protocol deviation that compromised data quality.
 
 ---
 
