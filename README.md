@@ -148,6 +148,145 @@ The following preprocessing pipeline is recommended for consistent and optimal u
 
 ---
 
+
+## Machine and Deep Learning Models
+
+### Machine Learning Model for Posture Classification
+
+The machine learning pipeline uses a **Random Forest (RF) classifier** for six-class sitting posture classification. The pipeline consists of windowing, feature engineering, feature selection, model training, and evaluation.
+
+#### ML Pipeline
+
+1. **Windowing:** IMU data are segmented into windows of **100 samples** with **50% overlap** for the ML pipeline.
+2. **Feature Engineering:** Handcrafted biomechanical features are extracted from the four IMU sensors.
+3. **Feature Selection:** A wrapper-based feature selection approach evaluates feature blocks using LOSO performance as the selection criterion.
+4. **Model Training:** A Random Forest classifier is trained using the selected features.
+5. **Evaluation:** Performance is evaluated using both train/validation/test splits and **Leave-One-Subject-Out (LOSO)** cross-validation.
+
+#### Handcrafted Feature Structure
+
+The feature engineering stage is organized into **8 biomechanical feature blocks**, with **109 handcrafted features** extracted per window:
+
+| Block | Feature Group | Description |
+|---|---|---|
+| B1 | Per-sensor statistics | Mean, standard deviation, and RMS of acceleration-related signals across the 4 sensors |
+| B2 | C7 vs L5 angle difference | Mean and standard deviation of C7 − L5 roll and pitch differences |
+| B3 | Pitch & roll statistics | Mean, standard deviation, and temporal slope per sensor |
+| B4 | Acceleration magnitude | Mean, standard deviation, maximum, and minimum acceleration magnitude across the 4 sensors |
+| B5 | Spinal curvature | Quadratic fit across the pitch values of the 4 spinal sensors |
+| B6 | Linear spine slope | Spatial pitch gradient along the spine |
+| B7 | Sign agreement | C7 × L5 tilt-direction agreement for S-curve detection |
+| B8 | Slouch discriminators | L5−T12 and T4 gradients together with acceleration-Z cross-difference features |
+
+Feature importance analysis across LOSO folds identified **acceleration Y, Z, and X** and **Euler-angle pitch and roll** among the most important parameters.
+
+#### Random Forest Configuration
+
+The selected Random Forest configuration is:
+
+| Parameter | Value |
+|---|---|
+| `n_estimators` | 500 |
+| `max_depth` | 5 |
+| `min_samples_leaf` | 5 |
+| `max_features` | sqrt(features) |
+| `class_weight` | balanced |
+| `bootstrap` | True |
+
+The best validation configuration achieved a validation accuracy of **0.8380**.
+
+#### Wrapper-Based Feature Selection
+
+Feature selection was performed at the feature-block level using **LOSO accuracy** as the model-performance criterion. The process starts with all feature blocks, evaluates block subsets, and removes blocks that reduce generalization performance. The reported selected configuration retains **B1 (Per-sensor statistics)** and **B4 (Acceleration magnitude)**, resulting in **76 retained features** in the selected representation.
+
+---
+
+### Deep Learning Model for Posture Classification
+
+The deep learning approach uses a **CNN-based model** designed to process the four IMU sensors separately before performing sensor attention, sensor fusion, temporal aggregation, and final posture classification.
+
+#### CNN Pipeline
+
+1. **Input:** A multi-sensor IMU sequence with shape **(B, T, 24)**, where B is batch size and T is the number of time steps. The 24 input channels correspond to 6 features from each of the 4 sensors.
+2. **Sensor Split:** The input is separated into four sensor streams: **L5, T4, C7, and T12**, each with shape **(B, T, 6)**.
+3. **Per-Sensor CNN Extraction:** Each sensor is processed by the same sensor block in parallel.
+4. **Feature Attention:** Learned attention weights are applied to the extracted features within each sensor.
+5. **Sensor Stacking:** The four sensor representations are stacked to form **(B, T, 4, 32)**.
+6. **Sensor Attention:** Attention weights are learned across the four sensors to perform sensor weighting.
+7. **Sensor Fusion:** The weighted sensor representations are summed to produce a fused representation of **(B, T, 32)**.
+8. **Temporal Pooling:** Global Average Pooling 1D produces the temporal representation.
+9. **Classifier:** Dense layers with ReLU activations, dropout, and a final 6-class softmax layer produce the posture prediction.
+
+#### CNN Sensor Block
+
+Each of the four sensors is processed in parallel using:
+
+- `Conv1D(32, kernel_size=5, activation=ReLU)`
+- Batch Normalization
+- `Conv1D(32, kernel_size=3, activation=ReLU)`
+- Batch Normalization
+- Feature attention using `Dense(32, tanh)` → `Softmax` → feature weighting
+- Output representation: **(B, T, 32)**
+
+The model applies **sensor dropout of 0.25** at the input.
+
+#### CNN Classifier
+
+After sensor attention and temporal pooling, the classifier consists of:
+
+- `Dense(128)` + ReLU
+- `Dropout(0.4)`
+- `Dense(64)` + ReLU
+- `Dropout(0.3)`
+- `Dense(6)` + Softmax
+
+The model contains **101,735 trainable parameters**.
+
+#### CNN Training Configuration
+
+| Parameter | Value |
+|---|---|
+| Loss | Categorical Cross-Entropy |
+| Label smoothing | 0.05 |
+| Optimizer | Adam |
+| Learning rate | 1e-4 |
+| Batch size | 32 |
+| Maximum epochs | 60 |
+| Early stopping | Patience = 5 |
+| Learning-rate scheduler | ReduceLROnPlateau |
+| LR reduction factor | 0.5 |
+| LR scheduler patience | 3 |
+| Minimum learning rate | 1e-6 |
+| Window length | 200 samples |
+| Window overlap | 50% |
+| Normalization | Per-sensor mean and standard deviation, computed on training data only |
+| Validation strategy | LOSO, with train/validation split within the training subjects |
+
+#### CNN Evaluation
+
+The CNN was evaluated using both random subject splits and **Leave-One-Subject-Out (LOSO)** evaluation. Under LOSO evaluation, **45 subjects** were used as independent test runs, with the held-out subject completely unseen during training.
+
+The reported LOSO results are:
+
+| Metric | CNN |
+|---|---:|
+| Subject-Level Accuracy | 88.5% |
+| Window-Level Accuracy | 86.5% |
+| Macro F1-Score | 0.86 |
+
+The per-class F1-scores under LOSO evaluation are:
+
+| Posture | F1-Score |
+|---|---:|
+| Backward Bending | 0.98 |
+| Upright | 0.95 |
+| Slouching | 0.70 |
+| Forward Bending | 0.70 |
+| Right Bending | 0.89 |
+| Left Bending | 0.92 |
+
+The main confusion observed in the CNN results is between **Forward Bending and Slouching**, while the other posture classes show comparatively stronger discrimination.
+
 ## Baseline Classification Performance
 
 The dataset was validated using a Convolutional Neural Network (CNN) trained with Leave-One-Subject-Out (LOSO) cross-validation.
